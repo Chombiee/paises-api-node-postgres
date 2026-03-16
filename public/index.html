@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Países</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Gestión de Países</h1>
+
+<div id="mensaje"></div>
+
+<h2>Lista de Países</h2>
+
+<label>Registros por página:</label>
+
+<select id="limite">
+<option value="5">5</option>
+<option value="10">10</option>
+<option value="20">20</option>
+</select>
+
+<button onclick="cargarPaises()">Cargar</button>
+<button onclick="anterior()">Anterior</button>
+<button onclick="siguiente()">Siguiente</button>
+
+<table id="tabla">
+
+<thead>
+
+<tr>
+<th onclick="ordenar('nombre')">Nombre</th>
+<th onclick="ordenar('continente')">Continente</th>
+<th onclick="ordenar('poblacion')">Población</th>
+<th onclick="ordenar('pib_2019')">PIB 2019</th>
+<th onclick="ordenar('pib_2020')">PIB 2020</th>
+</tr>
+
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<h2>Agregar País</h2>
+
+<input id="nombre" placeholder="Nombre">
+
+<input id="continente" placeholder="Continente">
+
+<input id="poblacion" placeholder="Población">
+
+<input id="pib2019" placeholder="PIB 2019">
+
+<input id="pib2020" placeholder="PIB 2020">
+
+<button onclick="agregarPais()">Agregar</button>
+
+<h2>Eliminar País</h2>
+
+<input id="nombreEliminar" placeholder="Nombre del país">
+
+<button onclick="eliminarPais()">Eliminar</button>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

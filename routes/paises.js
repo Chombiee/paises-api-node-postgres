@@ -106,18 +106,23 @@ router.post("/", async (req, res) => {
     );
 
     // intentar registrar acción web
-    try {
+  try {
 
-      await client.query(
-        "INSERT INTO paises_data_web(nombre_pais, accion) VALUES($1,1)",
-        [nombre]
-      );
+    await client.query(
+      `
+      INSERT INTO paises_data_web(nombre_pais, accion)
+      VALUES($1,1)
+      ON CONFLICT (nombre_pais)
+      DO UPDATE SET accion = EXCLUDED.accion
+      `,
+      [nombre]
+   );
 
-    } catch (error) {
+  } catch (error) {
 
-      console.log("No se pudo registrar acción web");
+    console.log("No se pudo registrar acción web:", error.message);
 
-    }
+ }
 
     await client.query("COMMIT");
 
@@ -152,7 +157,7 @@ router.delete("/:nombre", async (req, res) => {
 
     await client.query("BEGIN");
 
-    // verificar existencia
+    // verificar si el país existe
     const existe = await client.query(
       "SELECT * FROM paises WHERE nombre=$1",
       [nombre]
@@ -168,29 +173,36 @@ router.delete("/:nombre", async (req, res) => {
 
     }
 
-    // eliminar pib
+    // eliminar PIB
     await client.query(
       "DELETE FROM paises_pib WHERE nombre=$1",
       [nombre]
     );
 
     // eliminar país
-    await client.query(
+    const eliminarPais = await client.query(
       "DELETE FROM paises WHERE nombre=$1",
       [nombre]
     );
 
-    // registrar acción
+    console.log("Filas eliminadas:", eliminarPais.rowCount);
+
+    // registrar acción web (UPSERT)
     try {
 
       await client.query(
-        "INSERT INTO paises_data_web(nombre_pais, accion) VALUES($1,0)",
+        `
+        INSERT INTO paises_data_web(nombre_pais, accion)
+        VALUES($1,0)
+        ON CONFLICT (nombre_pais)
+        DO UPDATE SET accion = EXCLUDED.accion
+        `,
         [nombre]
       );
 
     } catch (error) {
 
-      console.log("No se pudo registrar acción web");
+      console.log("No se pudo registrar acción web:", error.message);
 
     }
 
@@ -204,8 +216,10 @@ router.delete("/:nombre", async (req, res) => {
 
     await client.query("ROLLBACK");
 
+    console.error(error);
+
     res.status(500).json({
-      error: "Error al eliminar",
+      error: "Error al eliminar país",
       detalle: error.message
     });
 
